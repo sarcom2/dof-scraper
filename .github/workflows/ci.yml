@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly. Not to test the code -- to notice when the DOF changes underneath
+    # it: a fixture that no longer matches the live site is the earliest signal
+    # that the parser is about to start lying.
+    - cron: "17 13 * * 1"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --python ${{ matrix.python-version }}
+      - name: Lint
+        run: uv run ruff check .
+      - name: Types
+        run: uv run mypy
+      - name: Tests (no network required)
+        run: uv run pytest -q
+
+  drift:
+    # Advisory: does the live site still look like our fixtures? Allowed to
+    # fail, because a government website being down is not a broken build.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - name: Is the easy door open yet?
+        run: uv run dof-ingest research

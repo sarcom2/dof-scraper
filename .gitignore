@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# The corpus is derived data: re-runnable from the source, and large.
+data/
+!data/.gitkeep
+!data/dof.sqlite3
