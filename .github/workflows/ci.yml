@@ -39,5 +39,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync
-      - name: Is the easy door open yet?
+      - name: Check if an official bulk endpoint is still broken
         run: uv run dof-ingest research

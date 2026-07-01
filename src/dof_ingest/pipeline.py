@@ -149,9 +149,8 @@ def enrich(
             client.check_robots(body_url)
             resp = client.get(body_url)
         except RobotsDenied:
-            # Note that these URLs return HTTP 200 -- the server serves them
-            # happily. We skip them because robots.txt says not to, which is
-            # the only reason that matters. Recorded, not silently dropped.
+            # These URLs return HTTP 200, but robots.txt says no. Record them
+            # as `robots_denied` so the gap isn't hidden.
             counters.skipped_robots += 1
             store.set_body(codigo, "robots_denied")
             log.info("nota %s: skipped, robots.txt disallows it", codigo)

@@ -63,8 +63,8 @@ CREATE TABLE IF NOT EXISTS nota (
     revision        INTEGER NOT NULL DEFAULT 1,
     first_seen_at   TEXT    NOT NULL,
     -- last_seen_at moves on EVERY run; last_changed_at only when a hash moves.
-    -- Keeping them apart is the whole point: "we looked" and "it changed" are
-    -- different facts and conflating them destroys the audit trail.
+    -- Splitting them is the point: "we looked" and "it changed" are different
+    -- facts. Conflating them breaks the audit trail.
     last_seen_at    TEXT    NOT NULL,
     last_changed_at TEXT    NOT NULL
 );

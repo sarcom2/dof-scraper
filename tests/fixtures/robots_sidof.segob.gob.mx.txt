@@ -1,0 +1,136 @@
+User-agent: *
+#
+
+Disallow: /CopiasCert?
+
+
+Disallow: /notas/5381640
+Disallow: /notas/docFuente/5381640
+Disallow: /notas/5381425
+Disallow: /notas/docFuente/5381425
+Disallow: /notas/5381295
+Disallow: /notas/docFuente/5381295
+Disallow: /notas/5421604
+Disallow: /notas/docFuente/5421604
+Disallow: /notas/5464426
+Disallow: /notas/docFuente/5464426
+Disallow: /notas/5581631
+Disallow: /notas/docFuente/5581631
+Disallow: /notas/5541779
+Disallow: /notas/docFuente/5541779
+Disallow: /notas/5211044
+Disallow: /notas/docFuente/5211044
+Disallow: /notas/5488662
+Disallow: /notas/docFuente/5488662
+Disallow: /notas/5607793
+Disallow: /notas/docFuente/560779
+Disallow: /notas/5607907
+Disallow: /notas/docFuente/5607907
+Disallow: /notas/5608254
+Disallow: /notas/docFuente/5608254
+Disallow: /notas/5529376
+Disallow: /notas/docFuente/5529376
+Disallow: /notas/5535371
+Disallow: /notas/docFuente/5535371
+Disallow: /notas/5560257
+Disallow: /notas/docFuente/5560257
+Disallow: /notas/5560258
+Disallow: /notas/docFuente/5560258
+Disallow: /notas/5618246
+Disallow: /notas/docFuente/5618246
+Disallow: /notas/5611925
+Disallow: /notas/docFuente/5611925
+
+
+
+Disallow: /notas/5617809
+Disallow: /notas/docFuente/5617809
+
+Disallow: /notas/554364
+Disallow: /notas/docFuente/5543645
+
+Disallow: /notas/5540127
+Disallow: /notas/docFuente/5540127
+
+Disallow: /notas/5540256
+Disallow: /notas/docFuente/5540256
+
+Disallow: /notas/5611926
+Disallow: /notas/docFuente/5611926
+
+Disallow: /notas/5634925
+Disallow: /notas/docFuente/5634925
+
+Disallow: /notas/5547512
+Disallow: /notas/docFuente/5547512
+
+Disallow: /notas/5613851
+Disallow: /notas/docFuente/5613851
+
+#120624
+Disallow: /notas/5392554
+Disallow: /notas/docFuente/5392554
+Disallow: /notas/5488662
+Disallow: /notas/docFuente/5488662
+Disallow: /notas/5546564
+Disallow: /notas/docFuente/5546564
+Disallow: /notas/5573471
+Disallow: /notas/docFuente/5573471
+
+#250624
+Disallow: /notas/5579130
+Disallow: /notas/docFuente/5579130
+Disallow: /notas/5595534
+Disallow: /notas/docFuente/5595534
+Disallow: /notas/5614430
+Disallow: /notas/docFuente/561443
+Disallow: /notas/5634925
+Disallow: /notas/docFuente/5634925
+
+#270624
+Disallow: /notas/5666059
+Disallow: /notas/docFuente/5666059
+
+#291024
+Disallow: /notas/5523528
+Disallow: /notas/docFuente/5523528
+Disallow: /notas/codigo=556453
+Disallow: /notas/docFuente/5564538
+
+#131124
+Disallow: /notas/5523095
+Disallow: /notas/docFuente/5523095
+Disallow: /notas/5540256
+Disallow: /notas/docFuente/5523095
+
+#040325
+Disallow: /notas/5548034
+Disallow: /notas/docFuente/5548034
+
+#220425
+Disallow: /notas/5691050
+Disallow: /notas/docFuente/5691050
+Disallow: /notas/5715771
+Disallow: /notas/docFuente/5715771
+
+#310725
+Disallow: /notas/5504646
+Disallow: /notas/docFuente/5504646
+Disallow: /notas/5571333
+Disallow: /notas/docFuente/5571333
+Disallow: /notas/5508921
+Disallow: /notas/docFuente/5508921
+Disallow: /notas/5543645
+Disallow: /notas/docFuente/5543645
+
+#050226
+Disallow: /notas/5557303
+Disallow: /notas/docFuente/5557303
+Disallow: /notas/5581169
+Disallow: /notas/docFuente/5581169
+
+
+
+User-agent: AdsBot-Google
+Disallow: /
+
