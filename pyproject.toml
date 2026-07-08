@@ -18,6 +18,12 @@ dependencies = [
 
 [project.scripts]
 dof-ingest = "dof_ingest.cli:main"
+dof-qa = "dof_qa.cli:main"
+
+[project.optional-dependencies]
+# Generation via Claude is opt-in: the retrieval layer and the whole eval
+# harness run without it, so CI needs no API key.
+anthropic = ["anthropic>=0.116"]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
@@ -27,7 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/dof_ingest"]
+packages = ["src/dof_ingest", "src/dof_qa"]
 
 [tool.ruff]
 line-length = 100
@@ -35,11 +41,20 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+# SIM905 wants a list literal instead of `"...".split()`. For the Spanish
+# stopword and vocabulary blocks, the wrapped-prose form is what makes them
+# reviewable; a 200-element list literal is not.
+ignore = ["SIM905"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
 files = ["src"]
+
+# The anthropic SDK is an optional extra; CI type-checks without it installed.
+[[tool.mypy.overrides]]
+module = "anthropic.*"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

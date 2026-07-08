@@ -1,0 +1,82 @@
+// Golden set — hand-verified against the corpus, one question per line.
+//
+// Every `gold_codigos` entry was confirmed by reading the note, not by running
+// the system and recording what it returned. A golden set derived from the
+// system's own output measures self-consistency, not correctness.
+//
+// `today` pins relative expressions ("este trimestre") so the set is
+// reproducible on any date. `strategy` is the expected route; it is scored
+// separately from retrieval, because routing regresses silently.
+//
+// Questions whose evidence is not yet in the corpus are reported as SKIPPED by
+// the harness, not as failures. That is why the COFEPRIS / health-regulatory
+// block below is already here: the set is written for the corpus this is aimed
+// at, and those rows activate the moment the crawl reaches them.
+//
+// ---------------------------------------------------------------- retrieval
+{"id": "r01", "question": "¿Qué se publicó sobre la veda temporal para la pesca de atún aleta amarilla?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795172], "today": "2026-08-05", "note": "Species name in the title; straightforward lexical match."}
+{"id": "r02", "question": "¿Cuál es el cupo máximo para exportar azúcar a Estados Unidos?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795170], "today": "2026-08-05", "note": "Trade quota; the answer is a figure inside the body, not the title."}
+{"id": "r03", "question": "¿Qué se publicó sobre refugios para niñas, niños y adolescentes víctimas de violencia familiar?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795180, 5795181, 5795182], "today": "2026-08-05", "note": "Three near-identical convenios; tests multi-note recall and the per-note chunk cap."}
+{"id": "r04", "question": "¿Qué avisos van dirigidos a las comunidades del pueblo maya en Campeche, Quintana Roo y Yucatán?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795177, 5795178], "today": "2026-08-05", "note": "Two notes, same subject."}
+{"id": "r05", "question": "¿Qué resolvió la Suprema Corte en la acción de inconstitucionalidad 79/2025?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795186], "today": "2026-08-05", "note": "Exact case number — the kind of citation lexical search wins on and embeddings blur."}
+{"id": "r06", "question": "¿Qué inmueble federal se desincorporó del dominio público para aportarlo al patrimonio de la Fiscalía?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795164], "today": "2026-08-05", "note": "Published BY Hacienda but ABOUT the Fiscalía — deliberately phrased without the acronym so no agency filter fires."}
+{"id": "r07", "question": "¿Qué convenio se firmó para promover el uso y la certificación de la CURP?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795157], "today": "2026-08-05", "note": "CURP is an acronym in the text but not an agency; must not be mistaken for one."}
+{"id": "r08", "question": "¿Qué se publicó sobre el tipo de cambio para solventar obligaciones en moneda extranjera?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795190], "today": "2026-08-05", "note": "Short note; tests that short documents are not buried by long ones."}
+{"id": "r09", "question": "¿Qué información hay sobre las tasas de interés interbancarias de equilibrio?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795191, 5795192], "today": "2026-08-05", "note": "Two Banxico notes on TIIE, one of them fondeo a un día."}
+{"id": "r10", "question": "¿Qué solicitudes de registro constitutivo como asociación religiosa se publicaron?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795158, 5795159, 5795160, 5795161, 5795162], "today": "2026-08-05", "note": "Five near-duplicate notes — the hardest recall case in the corpus."}
+{"id": "r11", "question": "¿Qué se informó sobre los saldos de mandatos y fideicomisos?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795194, 5795188], "today": "2026-08-05", "note": "Two different issuers, same topic; tests topical recall across agencies."}
+{"id": "r12", "question": "¿Qué circulares se publicaron sobre el cumplimiento de una sentencia definitiva?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795174, 5795175], "today": "2026-08-05", "note": "Two circulares from the anticorruption ministry."}
+{"id": "r13", "question": "¿Qué dice el acuerdo sobre el barrilete y el atún ojo grande en el Océano Pacífico?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795172], "today": "2026-08-05", "note": "Same note as r01 reached through different vocabulary — paraphrase robustness."}
+{"id": "r14", "question": "¿Qué se publicó sobre el ciclo azucarero 2026-2027?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795170], "today": "2026-08-05", "note": "Paraphrase of r02 keyed on dates rather than the commodity."}
+{"id": "r15", "question": "¿Hay algo sobre votos particulares de ministras de la Corte?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795186], "today": "2026-08-05", "note": "Detail buried deep in a 68 KB note — tests chunking, not title matching."}
+// ----------------------------------------------------------------- hybrid
+{"id": "h01", "question": "¿Qué publicó la CFE sobre tarifas de suministro básico?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795184], "today": "2026-08-05", "note": "Acronym expansion (CFE -> Comisión Federal de Electricidad) plus a topic."}
+{"id": "h02", "question": "¿Qué publicó la SHCP sobre inmuebles federales este trimestre?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795164, 5795165, 5795166, 5795167], "today": "2026-08-05", "note": "The flagship shape: agency + topic + relative date. Q3 2026 covers 2026-07-31."}
+{"id": "h03", "question": "¿Qué publicó el Banco de México en julio de 2026?", "kind": "answerable", "strategy": "sql", "gold_codigos": [5795190, 5795191, 5795192], "today": "2026-08-05", "note": "Agency + absolute month and NO topical term — so this is enumeration, not ranking. I first labelled it hybrid; the router was right and the label was wrong."}
+{"id": "h04", "question": "¿Qué publicó la Secretaría de Cultura sobre pueblos indígenas?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795177, 5795178], "today": "2026-08-05", "note": "Agency name quoted in full."}
+{"id": "h05", "question": "¿Qué publicó la Secretaría de Gobernación sobre asociaciones religiosas?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795158, 5795159, 5795160, 5795161, 5795162], "today": "2026-08-05", "note": "Agency pre-filter should sharply improve precision here vs r10."}
+{"id": "h06", "question": "¿Qué publicó el DIF sobre transferencia de recursos federales?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795180, 5795181, 5795182], "today": "2026-08-05", "note": "DIF acronym expansion."}
+{"id": "h07", "question": "¿Qué publicó la Secretaría de Economía sobre exportaciones?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795170], "today": "2026-08-05", "note": "Single-note agency."}
+{"id": "h08", "question": "¿Qué publicó la Secretaría de Agricultura y Desarrollo Rural sobre pesca?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795172], "today": "2026-08-05", "note": "Long agency name, must match the corpus spelling."}
+// -------------------------------------------------------------------- sql
+{"id": "s01", "question": "¿Cuántas notas publicó la Secretaría de Hacienda y Crédito Público?", "kind": "answerable", "strategy": "sql", "gold_codigos": [], "today": "2026-08-05", "note": "Counting is arithmetic. Retrieval would return passages and no number."}
+{"id": "s02", "question": "¿Cuántas notas hay en total el 31 de julio de 2026?", "kind": "answerable", "strategy": "sql", "gold_codigos": [], "today": "2026-08-05", "note": "Date-only count, no agency."}
+{"id": "s03", "question": "Lista las notas del Banco de México", "kind": "answerable", "strategy": "sql", "gold_codigos": [5795190, 5795191, 5795192], "today": "2026-08-05", "note": "Enumeration, not ranking — every matching row, in date order."}
+{"id": "s04", "question": "¿Cuántas notas publicó la CFE en julio de 2026?", "kind": "answerable", "strategy": "sql", "gold_codigos": [], "today": "2026-08-05", "note": "Count with both an agency and a date filter."}
+{"id": "s05", "question": "Listado de notas de la Suprema Corte de Justicia de la Nación", "kind": "answerable", "strategy": "sql", "gold_codigos": [5795186], "today": "2026-08-05", "note": "Aggregate cue 'listado' plus an agency."}
+{"id": "s06", "question": "¿Cuántas notas publicó la Secretaría de Cultura este trimestre?", "kind": "answerable", "strategy": "sql", "gold_codigos": [], "today": "2026-08-05", "note": "Count scoped by a relative quarter."}
+// ------------------------------------------------------------ unanswerable
+// Out of corpus coverage — the system must say so specifically, naming the
+// limitation, rather than producing a plausible answer from adjacent text.
+{"id": "u01", "question": "¿Qué publicó COFEPRIS sobre registros sanitarios de dispositivos médicos este trimestre?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "The flagship question. COFEPRIS is not in the corpus yet; must refuse, not improvise."}
+{"id": "u02", "question": "¿Qué normas oficiales mexicanas de farmacovigilancia se publicaron?", "kind": "unanswerable", "strategy": "retrieval", "gold_codigos": [], "today": "2026-08-05", "note": "Health-regulatory topic absent from the corpus."}
+{"id": "u03", "question": "¿Qué publicó el IMSS sobre cuotas obrero patronales en 2019?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "Both the agency and the year are outside coverage."}
+{"id": "u04", "question": "¿Qué decretos se publicaron en enero de 2020?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "Date range entirely outside the corpus; expects the coverage-specific refusal."}
+{"id": "u05", "question": "¿Cuál es la tasa de inflación proyectada para 2027?", "kind": "unanswerable", "strategy": "retrieval", "gold_codigos": [], "today": "2026-08-05", "note": "The DOF does not publish forecasts. Tests refusal on a question the corpus type cannot answer."}
+{"id": "u06", "question": "¿Qué publicó la Secretaría de Salud sobre vacunación infantil?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "Plausible agency, absent from this corpus."}
+{"id": "u07", "question": "¿Cuántos permisos de importación de medicamentos oncológicos se autorizaron?", "kind": "unanswerable", "strategy": "retrieval", "gold_codigos": [], "today": "2026-08-05", "note": "Health topic with a counting cue; must not answer 0 as if it were a finding."}
+{"id": "u08", "question": "¿Qué dice el reglamento de insumos para la salud sobre dispositivos clase III?", "kind": "unanswerable", "strategy": "retrieval", "gold_codigos": [], "today": "2026-08-05", "note": "Synonym-expansion bait: 'insumos para la salud' is in the SYNONYMS table but absent from the corpus."}
+{"id": "u09", "question": "¿Qué publicó la CONAMED sobre arbitraje médico?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "Acronym resolves but the agency has no notes."}
+{"id": "u10", "question": "¿Cuál fue el precio del maíz en la bolsa de Chicago?", "kind": "unanswerable", "strategy": "retrieval", "gold_codigos": [], "today": "2026-08-05", "note": "Adjacent to the agriculture notes without being answerable by them — tests that topical proximity is not treated as an answer."}
+{"id": "u11", "question": "¿Qué publicó la CFE sobre energía nuclear?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "The agency IS in the corpus; the topic is not. Agency-match must not carry a wrong answer."}
+{"id": "u12", "question": "¿Qué sancionó la Suprema Corte en la acción de inconstitucionalidad 12/2021?", "kind": "unanswerable", "strategy": "retrieval", "gold_codigos": [], "today": "2026-08-05", "note": "Right agency, right document type, wrong case number — the nastiest refusal case in the set."}
+{"id": "u13", "question": "¿Qué publicó el Banco de México en 2015?", "kind": "unanswerable", "strategy": "sql", "gold_codigos": [], "today": "2026-08-05", "note": "Agency covered, year not; expects the date-coverage refusal specifically."}
+{"id": "u14", "question": "¿Cuántas notas publicó la Secretaría de Relaciones Exteriores?", "kind": "unanswerable", "strategy": "sql", "gold_codigos": [], "today": "2026-08-05", "note": "SQL route with zero rows must refuse, not answer 'cero'."}
+{"id": "u15", "question": "¿Qué publicó SENASICA sobre sanidad animal en el primer trimestre de 2026?", "kind": "unanswerable", "strategy": "hybrid", "gold_codigos": [], "today": "2026-08-05", "note": "Agency, topic and quarter all outside coverage."}
+// ------------------------------------------------- accent-less / typed-fast
+// Added AFTER the first ablation run, which reported diacritic folding at
+// +0.0pp. That was not evidence the folding is useless — it was evidence the
+// golden set never tested it: every question above is written with correct
+// accents, exactly like the corpus. Real users type without them.
+{"id": "a01", "question": "que se publico sobre la veda de atun aleta amarilla?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795172], "today": "2026-08-05", "note": "Same as r01, unaccented. Isolates the tokenizer's diacritic folding."}
+{"id": "a02", "question": "cual es el cupo maximo para exportar azucar a Estados Unidos?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795170], "today": "2026-08-05", "note": "Unaccented r02."}
+{"id": "a03", "question": "que resolvio la Suprema Corte en la accion de inconstitucionalidad 79/2025?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795186], "today": "2026-08-05", "note": "Unaccented r05; also keeps the exact case number."}
+{"id": "a04", "question": "que publico la Secretaria de Cultura sobre pueblos indigenas?", "kind": "answerable", "strategy": "hybrid", "gold_codigos": [5795177, 5795178], "today": "2026-08-05", "note": "Unaccented agency name — tests folding on the pre-filter too, not just the text."}
+{"id": "a05", "question": "informacion sobre tasas de interes interbancarias de equilibrio", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795191, 5795192], "today": "2026-08-05", "note": "Unaccented and phrased as a keyword query rather than a question."}
+// Single discriminative term, accent-less. a01-a05 were not enough to measure
+// diacritic folding: they still carried unaccented content words ("veda",
+// "cupo", "exportar") that found the note on their own. BM25 over an OR query
+// is resilient to a few unmatched terms, so folding only shows up when the
+// *only* discriminative term is accented. These two isolate it.
+{"id": "a06", "question": "que hay sobre atun?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795172], "today": "2026-08-05", "note": "Only term is 'atun'; corpus says 'atún'. Finds nothing without folding."}
+{"id": "a07", "question": "que hay sobre indigenas?", "kind": "answerable", "strategy": "retrieval", "gold_codigos": [5795177, 5795178], "today": "2026-08-05", "note": "Only term is 'indigenas'; corpus says 'indígenas'."}

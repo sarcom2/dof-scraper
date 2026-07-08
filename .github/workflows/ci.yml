@@ -30,6 +30,32 @@ jobs:
       - name: Tests (no network required)
         run: uv run pytest -q
 
+  eval:
+    # The eval harness as a build gate. Retrieval-only: deterministic, no GPU,
+    # no API key, byte-identical on every machine. If retrieval stops surfacing
+    # the right notes, the build fails -- a QA system whose retrieval quality is
+    # only checked by hand is a QA system whose retrieval quality is unknown.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync
+      - name: Build a small corpus from the captured fixtures
+        run: uv run python scripts/seed_corpus.py
+      - name: Index
+        run: uv run dof-qa index --db data/ci.sqlite3
+      - name: Golden set (fails the build if a threshold is missed)
+        run: uv run dof-qa --db data/ci.sqlite3 eval --no-generate --check --out eval/ci-report.json
+      - name: Ablation (informational)
+        run: uv run dof-qa --db data/ci.sqlite3 ablate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: eval/ci-report.json
+
   drift:
     # Advisory: does the live site still look like our fixtures? Allowed to
     # fail, because a government website being down is not a broken build.

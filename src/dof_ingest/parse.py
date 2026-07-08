@@ -246,7 +246,9 @@ def parse_index(html: str, fecha: str, edicion: str, source_url: str = "") -> In
             # We detect it positively (no `Fecha: dd/mm/yyyy` header anywhere)
             # and record it as `no_edition` so the run report distinguishes
             # "did not publish" from "we failed to read it".
-            log.info("%s/%s: no such edition (site served its homepage)", fecha, edicion)
+            log.info(
+                "%s/%s: no such edition (site served its homepage)", fecha, edicion
+            )
     return page
 
 
@@ -297,8 +299,9 @@ def parse_nota_body(html: str) -> str:
     masthead renders a live FX/UDIS ticker (`DÓLAR 17.3213  UDIS 8.844190`)
     and its citation box is stamped with *today's* date
     (`[citado el 01-08-2026]`). Hash that page and every record in the corpus
-    reports a content change every single day -- a change detector that always fires is worse than none,
-    because it looks like it's working when it isn't.
+    reports a content change every single day -- a change detector that always
+    fires is worse than none, because it looks like it's working when it
+    isn't.
 
     `docFuente` is clean: valid UTF-8, no chrome, no dynamic values. The
     `_VOLATILE` scrub below is therefore not load-bearing today. It stays as a

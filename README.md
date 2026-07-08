@@ -329,6 +329,107 @@ explicitly; pinned by `test_edition_param_is_not_optional`.
 
 ---
 
+## 7. Asking the corpus questions — `dof-qa`
+
+The scraper produces a queryable corpus of Mexican federal legal text. This is
+the part that reads it: ask a question in Spanish, get an answer with a
+citation to every note it used — or an explicit refusal.
+
+```bash
+uv run dof-qa index
+uv run dof-qa ask "¿Qué publicó la SHCP sobre inmuebles federales este trimestre?"
+uv run dof-qa eval --check      # the golden set, as a build gate
+uv run dof-qa ablate            # what actually moved recall
+```
+
+**The eval harness is the point, not the agent.** A retrieval system without a
+published evaluation is a demo. The measurements and the honest negative
+results are in **[docs/ABLATION.md](docs/ABLATION.md)**; the corpus they were
+measured on is committed, so the numbers reproduce from a clean clone.
+
+### Routing is the actual engineering
+
+The corpus is hybrid — strict structured metadata *and* unstructured legal
+text — so questions need different machinery:
+
+| Question | Route | Why |
+|---|---|---|
+| *¿Cuántas notas publicó la SHCP en julio?* | **SQL** | Counting is arithmetic. A RAG system that answers this by summarising retrieved passages is guessing at a number it could have computed |
+| *¿Qué dice el DOF sobre dispositivos médicos?* | **retrieval** | No structured predicate to apply |
+| *¿Qué publicó COFEPRIS sobre registros sanitarios este trimestre?* | **hybrid** | Agency and date become a **pre-filter** on the candidate set, not a post-filter on the results |
+
+Pre- versus post-filtering is the load-bearing detail. Post-filtering picks the
+global top-k and then decimates it; ask for k=8 and you may keep one.
+Pre-filtering picks k=8 *within* the eligible set.
+
+No model decides the route. Routing is deterministic, unit-tested, and scored
+separately — currently **100%** on the golden set — because it is the component
+most likely to regress silently.
+
+### Groundedness is enforced, not requested
+
+- Answers are produced under a **JSON schema** (`output_config.format` on
+  Claude, `format` on ollama), so citations are structurally guaranteed rather
+  than regex-extracted from prose.
+- **Every cited code is checked against the passages the model was actually
+  shown.** A citation to a note that was not in the context is a fabrication
+  and the answer is discarded. This is not hypothetical — `gemma4:12b` cited
+  `[1, 2]`, the *positions* of the excerpts rather than their note codes, and
+  the validator caught it.
+- **Refusals name the limitation.** "No sé" and "the corpus only covers
+  2026-07-31" are different answers, and the second one tells the user the
+  question was fine and the data is the gap.
+
+```
+$ dof-qa ask "¿Qué publicó COFEPRIS sobre registros sanitarios este trimestre?"
+  strategy=hybrid | organismo~comision federal para la proteccion contra riesgos
+  sanitarios, fecha 2026-07-01..2026-09-30 | terms=['registros','sanitarios',...]
+
+  NO SÉ — No hay notas de ese organismo en el corpus (27 notas indexadas).
+$ echo $?
+1
+```
+
+### The metrics, and why each one is there
+
+Measured over **51 hand-verified golden questions** (36 answerable, 15
+deliberately unanswerable), each pinning its own `today` so relative dates like
+*este trimestre* are reproducible:
+
+| Metric | Result | What it catches |
+|---|---:|---|
+| `recall@8` | **94.8%** | Did retrieval put the right notes in front of the model? Deterministic — runs in CI with no model |
+| `hit_rate@8` | 96.9% | At least one correct note surfaced |
+| `routing_accuracy` | 100% | SQL / retrieval / hybrid decision |
+| `refusal_rate_unanswerable` | 53.3% (gates only) | Does it say "no" when it should? |
+| `over_refusal_rate_answerable` | **0.0%** | The counterweight — refusing everything scores 100% on the line above |
+
+Reporting a refusal rate without its over-refusal counterweight is the easiest
+way to publish a flattering lie, which is why they sit next to each other.
+
+**Two bugs the harness found that no spot-check would have.** Fusing a second
+query formulation swapped a calibrated BM25 score (0–45) for an RRF score
+(≈0.016), so the relevance gate refused *every* fused query with the correct
+document at rank 1 — 24% over-refusal, invisible one question at a time. And
+the chunk index never reached disk: Python's `sqlite3` default isolation level
+committed the DDL and discarded every INSERT, while `build()` reported
+`indexed=27 chunks=504`. Both are pinned by regression tests. Both are the same
+failure this repo keeps meeting: *the operation reports success and the data is
+not there.*
+
+### Providers
+
+Generation is pluggable and **optional** — the retrieval layer and the entire
+eval harness run with no model at all:
+
+| Provider | Use |
+|---|---|
+| `extractive` (default) | No model. Quotes passages with their citations. Cannot hallucinate, runs in CI, and is the baseline any generated answer must beat (citation F1 **70.7%**) |
+| `ollama[:model]` | Local, free, offline. Defaults to `gemma4:12b` |
+| `anthropic[:model]` | Claude via the official SDK. `uv sync --extra anthropic` |
+
+---
+
 ## Data model
 
 ```
@@ -358,6 +459,11 @@ dof-ingest run      --last-days 7        both
 dof-ingest stats                         what's in the store + run history
 dof-ingest export   --format jsonl --out data/notas.jsonl
 dof-ingest robots   <url>                explain the robots.txt verdict (exit 1 if denied)
+
+dof-qa index                             build the chunk + FTS5 index (idempotent)
+dof-qa ask "<pregunta>"                  answer with citations, or refuse (exit 1)
+dof-qa eval --check                      run the golden set as a build gate
+dof-qa ablate                            what moved recall, and what didn't
 ```
 
 Global: `--db PATH`, `-v`, `--log-json` (structured logs for CI/schedulers).
