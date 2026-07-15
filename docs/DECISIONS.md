@@ -186,3 +186,145 @@ eligible for the next run.
 **Rejected:** returning an empty page. A pipeline that silently returns empty
 is worse than one that crashes: empty looks like data, and a recorded empty
 edition would suppress every future attempt at that date.
+
+---
+
+## ADR-10 — FTS5/BM25 instead of embeddings
+
+**Status:** accepted, and untested against the alternative.
+
+Mexican legal Spanish is a high-precision lexical domain. Users search by exact
+identifier — `acción de inconstitucionalidad 79/2025`, `Registro Federal
+Inmobiliario 25-6254-0`, `Thunnus albacares` — and those are exactly what
+embeddings blur. Golden questions `r05` and `u12` are the same shape with
+different case numbers; a retriever that can't tell 79/2025 from 12/2021 gets
+one of them wrong.
+
+FTS5 also costs zero dependencies, needs no GPU or API key, and returns
+byte-identical results on every machine. That's what lets the eval be a build
+gate instead of a notebook.
+
+**Rejected:** a vector store. Not because I measured it and it lost — I didn't
+measure it, and I'm not claiming a win I didn't run. The reasoning above is why
+I started lexical.
+
+**Revisit when:** questions start arriving as paraphrases with no shared
+vocabulary. The honest next experiment is hybrid — BM25 ∪ embeddings fused with
+the RRF already in `retrieve.py`, on the same golden set. `rrf_fuse` takes a
+list of runs precisely so a second retriever drops in without touching anything
+else.
+
+---
+
+## ADR-11 — Deterministic routing, no model in the loop
+
+**Status:** accepted.
+
+The route (SQL / retrieval / hybrid) is decided by regexes and a vocabulary
+table, not by an LLM.
+
+Counting questions go to SQL because counting is arithmetic. A RAG system that
+answers "¿cuántas notas publicó la SHCP?" by summarising retrieved passages is
+guessing at a number it could have computed exactly, and it will be confidently
+wrong at some corpus size.
+
+**Rejected:** an LLM router. It would be non-deterministic, untestable in CI,
+and able to fail in new ways between runs on identical input. Routing accuracy
+is currently 100% on the golden set; that number means something because the
+component can't drift.
+
+**Consequence:** the router only knows vocabulary it's been given. `ACRONYMS`
+and `SYNONYMS` are maintained by hand, and an unlisted agency won't produce a
+filter.
+
+**Revisit when:** the hand-maintained vocabulary becomes the bottleneck — the
+symptom is routing accuracy dropping while retrieval stays fine.
+
+---
+
+## ADR-12 — The structured predicate is a pre-filter, not a post-filter
+
+**Status:** accepted; the recall benefit is not yet measurable.
+
+Agency and date constrain the candidate set *before* BM25 ranks it, via a JOIN
+against `nota`. Post-filtering would pick the global top-k and then throw most
+of it away: ask for k=8 and keep one.
+
+**The ablation reports +0.0pp**, and I'm calling that a null result rather than
+a negative one. With 27 notes from a single day there's nothing for a filter to
+exclude — the decimation it prevents can't happen below k. On a corpus of tens
+of thousands of notes where one agency is ~2% of rows, I expect this to be one
+of the largest effects. Right now the experiment has no power to detect it.
+
+What it already buys, measurably: precision, and refusals for the right reason.
+The COFEPRIS question refuses with `out_of_coverage` instead of returning
+topically-adjacent health-sounding text.
+
+**Revisit when:** the corpus spans years. Then the number will mean something.
+
+---
+
+## ADR-13 — Refuse at the gate, not only at the model
+
+**Status:** accepted.
+
+Three refusals happen before any model sees anything: the question's date range
+falls outside the corpus, its agency has no notes, or nothing matched above the
+BM25 floor. Each names its own reason.
+
+"No sé" and "el corpus sólo cubre 2026-07-31" are different answers. The second
+tells the user the question was fine and the data is the gap — and it costs
+nothing to produce.
+
+**Rejected:** letting the model decide everything. Handing weak context to an
+LLM is how ungrounded answers get generated: it will use what it's given.
+
+**Consequence:** gate-level refusal caps at 53.3% on the golden set, because
+catching "right agency, right document type, wrong case number" (`u12`) needs a
+model. CI measures the gate floor; the generation numbers are reported
+separately.
+
+**Note the score-scale trap:** the BM25 floor must be applied to `Hit.bm25`,
+never `Hit.score`. Fusing a second query formulation replaces the calibrated
+BM25 value with an RRF score around 0.016, so the gate refuses everything with
+the right document at rank 1. Pinned by
+`test_rrf_scores_are_not_bm25_scores`.
+
+---
+
+## ADR-14 — Citations validated against what the model was shown
+
+**Status:** accepted.
+
+Answers are produced under a JSON schema, and every cited `codigo` is checked
+against the passages actually in the context. Codes that weren't there are
+stripped; if nothing survives, the answer is discarded and becomes a refusal.
+
+This isn't hypothetical. `gemma4:12b` cited `[1, 2]` — the *positions* of the
+excerpts rather than their note codes. Prose parsing would have accepted it.
+
+**Rejected:** extracting citations from free text with a regex. A citation you
+parsed out of prose is a citation you can't trust, and trustworthy citations
+are the entire product.
+
+**Consequence:** a model that cites badly gets a refusal rather than a wrong
+answer. That's the correct trade for a legal corpus, and it shows up honestly
+in the over-refusal metric instead of hiding in the citation score.
+
+---
+
+## ADR-15 — The evaluation corpus is committed
+
+**Status:** accepted.
+
+`tests/fixtures/corpus.jsonl` holds the 27 notes the published numbers were
+measured on, and `scripts/seed_corpus.py` replays it. A clean clone reproduces
+94.8% recall@8 exactly.
+
+**Rejected:** re-crawling in CI. It would make the build depend on a government
+website being reachable — and on the day this was written, `www.dof.gob.mx` had
+an expired TLS certificate. A test that fails because SEGOB let a cert lapse is
+a test that gets disabled.
+
+**Consequence:** ~540 KB of public government text in git. Worth it: eval
+results nobody else can reproduce aren't results.

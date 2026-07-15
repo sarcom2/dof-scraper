@@ -424,7 +424,7 @@ eval harness run with no model at all:
 
 | Provider | Use |
 |---|---|
-| `extractive` (default) | No model. Quotes passages with their citations. Cannot hallucinate, runs in CI, and is the baseline any generated answer must beat (citation F1 **70.7%**) |
+| `extractive` (default) | No model. Quotes passages with their citations. Cannot hallucinate, runs in CI, and is the baseline any generated answer must beat (citation F1 **75.2%**) |
 | `ollama[:model]` | Local, free, offline. Defaults to `gemma4:12b` |
 | `anthropic[:model]` | Claude via the official SDK. `uv sync --extra anthropic` |
 
