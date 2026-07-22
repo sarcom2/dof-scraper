@@ -204,6 +204,66 @@ reports success and the data is not there.**
 
 ---
 
+## Generation: what a model adds, and what it costs
+
+Retrieval is identical across providers (deterministic), so this table isolates
+the generation layer. Same corpus, same 51 questions.
+
+| | extractive | `gemma4:12b` (local) |
+|---|---:|---:|
+| refusal on unanswerable | 53.3% | **100%** |
+| over-refusal on answerable | **0.0%** | 11.1% |
+| citation precision | 73.6% | **82.0%** |
+| citation recall | 76.9% | **80.7%** |
+| citation F1 | 75.2% | **81.4%** |
+
+**Semantic refusal is the thing a model buys.** The gates can only catch
+structural impossibility. Seven questions require reading:
+
+| id | Why no gate could catch it |
+|---|---|
+| `u12` | Right court, right document type, **wrong case number** (12/2021 vs 79/2025). BM25 = 19.67, higher than several answerable questions |
+| `u11` | Agency is in the corpus, topic is not (CFE / nuclear energy) |
+| `u10` | Topically adjacent to the agriculture notes without being answerable by them |
+| `u02`, `u07`, `u08` | Health-regulatory vocabulary that shares stems with real notes |
+| `u05` | Asks for a forecast; the DOF does not publish forecasts |
+
+`u12` is the load-bearing case for the whole "why lexical retrieval needs a
+reader on top" argument. Its BM25 score sits *above* several correct answers,
+so no threshold anywhere separates it. This is also why `MIN_SCORE` stays low
+(0.5) and functions as a did-anything-match gate rather than a relevance
+judgement — the score distributions of answerable (2.4–45.5) and unanswerable
+(4.5–19.7) questions overlap almost completely.
+
+**The cost is 11.1% over-refusal** — 4 of 36. Naming them matters, because two
+of the four are not model errors:
+
+- `r02` / `a02` (sugar quota): retrieval put the correct note at rank 1 and the
+  model replied *"the excerpts state a quota was published but do not contain
+  the figure."* Reading the chunk, that is **correct** — the number lives
+  elsewhere in the note. A chunking limitation, correctly surfaced as a
+  refusal instead of an invented number.
+- `a07` (*"que hay sobre indigenas?"*): retrieved both correct notes, declined
+  anyway. A genuine over-refusal on a vague question.
+- `h02`: retrieved 3 of 4 correct notes, declined.
+
+So the honest reading of 11.1% is closer to ~5.5% model over-refusal plus
+~5.5% retrieval depth surfacing as refusal. Splitting those apart is the next
+measurement, not a claim I can make from this table.
+
+**Citations improve too** (75.2% → 81.4% F1). The extractive baseline cites its
+top 3 passages whether or not all three carry the answer, which caps its
+precision; the model cites what it used. 24 of 32 answers have perfectly
+precise citations.
+
+**One failure the schema caught.** `gemma4:12b` returns citations as *positions*
+(`[1, 2]`) rather than note codes when the prompt does not spell out the
+difference. The validator rejected the answer, the eval scored it as a refusal,
+and the fix was a prompt line naming the failure explicitly. A regex-based
+citation parser would have accepted `[1, 2]` as valid output.
+
+---
+
 ## Caveats
 
 - **27 notes, one day, 12 agencies.** Recall@8 of 94.8% on a corpus this size
@@ -219,5 +279,10 @@ reports success and the data is not there.**
   agency, right document type, wrong case number" (`u12`) — requires
   generation; see the generation numbers in the README.
 - **Single run per variant.** Retrieval is deterministic so there is no
-  variance to average, but generation numbers are not, and are reported
-  separately.
+  variance to average. Generation is not: `gemma4:12b` runs at `temperature 0`
+  with schema-constrained decoding, which makes it close to reproducible but
+  not guaranteed. One run, not an average.
+- **One local model, no API comparison.** The `anthropic` provider exists and
+  is wired to the same harness, but the numbers above are `gemma4:12b` only.
+  Publishing a Claude-vs-local table would need an API key and a budget; the
+  code path is there for whoever wants to run it.

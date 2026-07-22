@@ -15,7 +15,7 @@ from pathlib import Path
 # misbehaves, the DOF sysadmin needs a way to tell us instead of blocking the
 # whole ASN. Replace the URL/email with yours before running this in anger.
 DEFAULT_USER_AGENT = (
-    "dof-ingest/0.1 (+https://github.com/USERNAME/dof-ingest; contact: you@example.com)"
+    "dof-ingest/0.1 (+https://github.com/sarcom2/dof-scraper; contact: marcel_lara1@hotmail.com)"
 )
 
 # Discovery lives on www.dof.gob.mx, enrichment on sidof.segob.gob.mx.

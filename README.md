@@ -424,9 +424,50 @@ eval harness run with no model at all:
 
 | Provider | Use |
 |---|---|
-| `extractive` (default) | No model. Quotes passages with their citations. Cannot hallucinate, runs in CI, and is the baseline any generated answer must beat (citation F1 **75.2%**) |
+| `extractive` (default) | No model. Quotes passages with their citations. Cannot hallucinate, runs in CI, and is the baseline any generated answer has to beat |
 | `ollama[:model]` | Local, free, offline. Defaults to `gemma4:12b` |
 | `anthropic[:model]` | Claude via the official SDK. `uv sync --extra anthropic` |
+
+### What generation actually buys — measured, same corpus, same 51 questions
+
+| | extractive (no model) | `gemma4:12b` (local) |
+|---|---:|---:|
+| `recall@8` | 94.8% | 94.8% |
+| `routing_accuracy` | 100% | 100% |
+| **`refusal_rate_unanswerable`** | 53.3% | **100%** |
+| **`over_refusal_rate_answerable`** | **0.0%** | 11.1% |
+| **`citation_f1`** | 75.2% | **81.4%** |
+
+**The trade is legible in one line: semantic refusal costs over-refusal.**
+Without a model, the gates catch only structural impossibility — the date is
+outside the corpus, the agency has no notes, nothing matched. Seven questions
+need a reader:
+
+> `u12` — *"¿Qué sancionó la Suprema Corte en la acción de inconstitucionalidad
+> **12/2021**?"* Right court, right document type, wrong case number. BM25
+> scores it **19.67** — higher than several genuinely answerable questions —
+> because every word except the number matches the note about **79/2025**. No
+> lexical threshold separates these two; only something that reads the passage
+> can.
+
+The model catches all seven, taking unanswerable-refusal from 53.3% to 100%,
+and it pays 11.1% (4 of 36) over-refusal for it. Those four are worth naming:
+
+- `r02` / `a02` — the sugar-quota question. Retrieval put the right note at
+  rank 1; the model answered *"the excerpts say a quota was published but do
+  not contain the figure."* Reading the chunk, **it is right** — the number is
+  elsewhere in the note. That is a chunking problem being correctly reported as
+  a refusal, not a model failure.
+- `a07` — *"que hay sobre indigenas?"* Retrieved exactly the two correct notes
+  and still declined. A real over-refusal on a vague question.
+- `h02` — retrieved 3 of 4 correct notes and declined.
+
+Citation F1 also goes up (75.2% → 81.4%): the model cites the notes it used,
+where the extractive baseline cites the top 3 passages whether or not all three
+carry the answer. 24 of 32 answers have perfectly precise citations.
+
+Generation numbers are **not** a CI gate — they need a model and they are not
+deterministic. They are regenerated with `make eval-local` and reported here.
 
 ---
 
