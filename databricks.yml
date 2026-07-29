@@ -1,0 +1,96 @@
+# Databricks Asset Bundle: the lakehouse layer as infrastructure-as-code.
+#
+# Targets Databricks Free Edition (free, no card: databricks.com/learn/free-edition),
+# which only offers serverless compute -- hence `environment_key` on each task
+# and no cluster spec anywhere.
+#
+# Deploy:
+#   brew install databricks/tap/databricks
+#   databricks auth login            # host = your Free Edition workspace URL
+#   databricks bundle deploy
+#   databricks bundle run dof_lake_pipeline
+#
+# The job expects export snapshots already uploaded to the volume:
+#   uv run dof-lake export
+#   databricks fs cp data/exports/ dbfs:/Volumes/workspace/dof/exports/ --recursive
+# The scraper stays on your machine -- the DOF rate limit is a politeness
+# contract, and hammering a government site from a datacenter ASN is how you
+# get the whole ASN blocked. Only the snapshots travel.
+
+bundle:
+  name: dof-lake
+
+variables:
+  catalog:
+    description: Unity Catalog that owns the dof_* schemas (Free Edition default)
+    default: workspace
+  volume_path:
+    description: UC volume holding the uploaded export snapshots
+    default: /Volumes/workspace/dof/exports
+
+artifacts:
+  default:
+    type: whl
+    build: uv build --wheel
+    path: .
+
+resources:
+  jobs:
+    dof_lake_pipeline:
+      name: dof-lake-pipeline
+      schedule:
+        # 07:00 Mexico City, weekdays: after the matutina is out, before work.
+        quartz_cron_expression: "0 0 13 ? * MON-FRI"
+        timezone_id: America/Mexico_City
+        pause_status: PAUSED  # unpause once the volume has snapshots
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "3"
+            dependencies:
+              - ./dist/*.whl
+
+      tasks:
+        - task_key: bronze
+          environment_key: default
+          python_wheel_task:
+            package_name: dof-ingest
+            entry_point: dof-lake
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --exports-dir
+              - ${var.volume_path}
+              - bronze
+
+        - task_key: silver
+          depends_on: [{task_key: bronze}]
+          environment_key: default
+          python_wheel_task:
+            package_name: dof-ingest
+            entry_point: dof-lake
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --exports-dir
+              - ${var.volume_path}
+              - silver
+
+        - task_key: gold
+          depends_on: [{task_key: silver}]
+          environment_key: default
+          python_wheel_task:
+            package_name: dof-ingest
+            entry_point: dof-lake
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - gold
+
+targets:
+  dev:
+    mode: development
+    default: true
+  prod:
+    mode: production

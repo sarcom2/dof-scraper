@@ -19,4 +19,6 @@ data/
 # and the ablation write-up belong in git.
 eval/report-*.json
 eval/ci-report.json
-!data/dof.sqlite3
+
+# Databricks Asset Bundle deployment state (machine-local, auth-derived)
+.databricks/

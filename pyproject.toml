@@ -19,11 +19,18 @@ dependencies = [
 [project.scripts]
 dof-ingest = "dof_ingest.cli:main"
 dof-qa = "dof_qa.cli:main"
+dof-lake = "dof_lake.cli:main"
 
 [project.optional-dependencies]
 # Generation via Claude is opt-in: the retrieval layer and the whole eval
 # harness run without it, so CI needs no API key.
 anthropic = ["anthropic>=0.116"]
+# The lakehouse layer. Kept out of the default install on purpose: PySpark
+# pulls a ~300 MB JVM distribution and needs a JDK, which the scraper, the QA
+# layer and their tests have no use for. Pinned to the 4.0 line because that
+# is what Databricks serverless (DBR 17) runs, so local code and cloud code
+# are the same code.
+lake = ["pyspark>=4.0.3,<4.1", "delta-spark>=4.0.1,<4.1"]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
@@ -33,7 +40,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/dof_ingest", "src/dof_qa"]
+packages = ["src/dof_ingest", "src/dof_qa", "src/dof_lake"]
 
 [tool.ruff]
 line-length = 100
@@ -54,6 +61,16 @@ files = ["src"]
 # The anthropic SDK is an optional extra; CI type-checks without it installed.
 [[tool.mypy.overrides]]
 module = "anthropic.*"
+ignore_missing_imports = true
+
+# PySpark DataFrame.count() returns Any at runtime; ignore the specific error.
+[[tool.mypy.overrides]]
+module = "dof_lake.*"
+disable_error_code = ["no-any-return"]
+
+# PySpark ships no type stubs; the lake extra is likewise optional.
+[[tool.mypy.overrides]]
+module = ["pyspark.*", "delta.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

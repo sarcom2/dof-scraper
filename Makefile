@@ -39,5 +39,13 @@ eval-local:         ## run the golden set with the local model via ollama
 ablate:             ## what actually moved recall, and what didn't
 	uv run dof-qa ablate
 
+# PySpark needs a JDK: `brew install openjdk@17` and `uv sync --extra lake`.
+# CI gets JAVA_HOME from setup-java instead of this hardcoded brew prefix.
+lake:               ## export + bronze + silver + gold, local Spark
+	JAVA_HOME=/opt/homebrew/opt/openjdk@17 uv run dof-lake all
+
+lake-test:          ## the SCD-2 / idempotency suite against local Delta
+	JAVA_HOME=/opt/homebrew/opt/openjdk@17 uv run pytest tests/test_lake.py -q
+
 clean:
 	rm -rf .pytest_cache .mypy_cache .ruff_cache data/demo.sqlite3*
