@@ -18,9 +18,9 @@ DEFAULT_USER_AGENT = (
     "dof-ingest/0.1 (+https://github.com/sarcom2/dof-scraper; contact: marcel_lara1@hotmail.com)"
 )
 
-# Discovery lives on www.dof.gob.mx, enrichment on sidof.segob.gob.mx.
+# Discovery lives on dof.gob.mx, enrichment on sidof.segob.gob.mx.
 # Both hosts are checked against their own robots.txt (see http.RobotsGate).
-INDEX_BASE = "https://www.dof.gob.mx/index_111.php"
+INDEX_BASE = "https://dof.gob.mx/index_111.php"
 
 # The human-facing note page. We store it as the citable URL but we never
 # parse it: it is a shell around an iframe, and its masthead carries a live FX

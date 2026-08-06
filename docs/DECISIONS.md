@@ -328,3 +328,53 @@ a test that gets disabled.
 
 **Consequence:** ~540 KB of public government text in git. Worth it: eval
 results nobody else can reproduce aren't results.
+
+---
+
+## ADR-16 — Spark for a corpus that fits in SQLite
+
+**Status:** accepted, with the reason stated plainly.
+
+The corpus does not need Spark for volume — it is megabytes, and ADR-5 chose
+SQLite for exactly that reason. The lakehouse layer (`dof_lake`) exists
+because the DOF's *amendment semantics* map onto three things a Delta
+lakehouse does natively and a row store doesn't:
+
+1. **MERGE-based idempotent loads.** The scraper's three-outcome upsert
+   (insert / touch / version-bump) is re-implemented as Delta MERGE, proving
+   the idempotency contract is a property of the design, not of SQLite.
+2. **SCD Type 2.** The DOF corrects published notices (fe de erratas) and the
+   scraper already tracks that with `revision` + content hashes. Silver turns
+   that change feed into one row per (codigo, revision) with
+   `[valid_from, valid_to)` brackets, so "what did this decree say before the
+   correction?" is a query, not an excavation.
+3. **Time travel.** "What did the corpus look like on date X?" — the same
+   audit-trail ethos as the run ledger, one layer up.
+
+The version key is the scraper's own `revision`, which only moves when a
+content hash moves. That makes the merge deterministic with no watermark
+table: re-observed revisions anti-join away. Two invariants (one live row per
+codigo; no closed row with `valid_to NULL`) are re-derived from the data
+after every merge, so consistency is proven, not assumed.
+
+**Rejected:**
+- *Spark in the crawler.* The crawl is sequential and rate-limited at 1 req/s
+  as a politeness contract (ADR-5's spirit). Parallelising it would break the
+  promise the project is built on.
+- *The single-statement "UNION ALL with NULL merge key" SCD-2 trick.* Saves
+  one scan, costs comprehensibility. Two explicit steps — close the live row,
+  append the new versions — say what they do.
+- *Watermark-based incrementality.* A watermark breaks under out-of-order
+  backfills; source-assigned monotonic revisions don't.
+- *Pretending this is big data.* It isn't, and the README says so. The
+  portable part is the change-capture pattern; at 1000× the volume the same
+  code runs unchanged, which is the actual claim.
+
+**Consequence:** everything runs locally (`pyspark` + `delta-spark`, JDK 17)
+and the identical code deploys to Databricks Free Edition via the Asset
+Bundle in `databricks.yml`. The scraper never runs on Databricks — only
+snapshots travel — because the DOF rate limit should be honoured from a
+residential ASN, not a datacenter one.
+
+**Revisit when:** the corpus reaches the tens of gigabytes, at which point
+silver's full-table invariant pass should become an incremental merge.

@@ -1,0 +1,168 @@
+User-agent: *
+#
+
+Disallow: /nota_to_doc.php?
+Disallow: /copias_cert.php?
+Disallow: /nota_detalle.php?
+
+Disallow: /nota_detalle.php?codigo=5381640&fecha=11/02/2015#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5381640
+Disallow: /nota_detalle.php?codigo=5381425&fecha=10/02/2015#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5381425
+Disallow: /nota_detalle.php?codigo=5381295&fecha=09/02/2015#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5381295
+Disallow: /nota_detalle.php?codigo=5421604&fecha=29/12/2015#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5421604
+Disallow: /nota_detalle.php?codigo=5464426&fecha=07/12/2016#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5464426
+Disallow: /nota_detalle.php?codigo=5581631&fecha=11/12/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5581631
+Disallow: /nota_detalle.php?codigo=5541779&fecha=23/10/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5541779
+Disallow: /nota_detalle.php?codigo=5211044&fecha=26/09/2011#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5211044
+Disallow: /nota_detalle.php?codigo=5488662&fecha=30/06/2017#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5488662
+Disallow: /nota_detalle.php?codigo=5607793&fecha=16/12/2020#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=560779
+Disallow: /nota_detalle.php?codigo=5607907&fecha=17/12/2020#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5607907
+Disallow: /nota_detalle.php?codigo=5608254&fecha=18/12/2020#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5608254
+Disallow: /nota_detalle.php?codigo=5529376&fecha=28/06/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5529376
+Disallow: /nota_detalle.php?codigo=5535371&fecha=21/08/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5535371
+Disallow: /nota_detalle.php?codigo=5560257&fecha=14/05/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5560257
+Disallow: /nota_detalle.php?codigo=5560258&fecha=14/05/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5560258
+Disallow: /nota_detalle.php?codigo=5618246&fecha=13/05/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5618246
+Disallow: /nota_detalle.php?codigo=5611925&fecha=22/02/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5611925
+
+
+Disallow: /index_100.php?year=2021&month=05&day=07
+Disallow: /index_111.php?year=2021&month=05&day=07
+Disallow: /index_113.php?year=2021&month=05&day=07
+Disallow: /index.php?year=2021&month=05&day=07
+Disallow: /nota_detalle.php?codigo=5617809&fecha=07/05/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5617809
+
+Disallow: /index_100.php?year=2018&month=11&day=13
+Disallow: /index_111.php?year=2018&month=11&day=13
+Disallow: /index_113.php?year=2018&month=11&day=13
+Disallow: /index.php?year=2018&month=11&day=13
+Disallow: /nota_detalle.php?codigo=5543645&fecha=13/11/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5543645
+
+Disallow: /index_100.php?year=2018&month=10&day=05
+Disallow: /index_111.php?year=2018&month=10&day=05
+Disallow: /index_113.php?year=2018&month=10&day=05
+Disallow: /index.php?year=2018&month=10&day=05
+Disallow: /nota_detalle.php?codigo=5540127&fecha=05/10/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5540127
+
+Disallow: /index_100.php?year=2018&month=10&day=08
+Disallow: /index_111.php?year=2018&month=10&day=08
+Disallow: /index_113.php?year=2018&month=10&day=08
+Disallow: /index.php?year=2018&month=10&day=08
+Disallow: /nota_detalle.php?codigo=5540256&fecha=08/10/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5540256
+
+Disallow: /index_100.php?year=2021&month=02&day=22
+Disallow: /index_111.php?year=2021&month=02&day=22
+Disallow: /index_113.php?year=2021&month=02&day=22
+Disallow: /index.php?year=2021&month=02&day=22
+Disallow: /nota_detalle.php?codigo=5611926&fecha=22/02/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5611926
+
+Disallow: /index_100.php?year=2021&month=11&day=10
+Disallow: /index_111.php?year=2021&month=11&day=10
+Disallow: /index_113.php?year=2021&month=11&day=10
+Disallow: /index.php?year=2021&month=11&day=10
+Disallow: /nota_detalle.php?codigo=5634925&fecha=10/11/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5634925
+
+Disallow: /index_100.php?year=2018&month=12&day=31
+Disallow: /index_111.php?year=2018&month=12&day=31
+Disallow: /index_113.php?year=2018&month=12&day=31
+Disallow: /index.php?year=2018&month=12&day=31
+Disallow: /nota_detalle.php?codigo=5547512&fecha=31/12/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5547512
+
+Disallow: /index_100.php?year=2021&month=03&day=18
+Disallow: /index_111.php?year=2021&month=03&day=18
+Disallow: /index_113.php?year=2021&month=03&day=18
+Disallow: /index.php?year=2021&month=03&day=18
+Disallow: /nota_detalle.php?codigo=5613851&fecha=18/03/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5613851
+
+#120624
+Disallow: /nota_detalle.php?codigo=5392554&fecha=18/05/2015#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5392554
+Disallow: /nota_detalle.php?codigo=5488662&fecha=30/06/2017#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5488662
+Disallow: /nota_detalle.php?codigo=5546564&fecha=14/12/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5546564
+Disallow: /nota_detalle.php?codigo=5573471&fecha=25/09/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5573471
+
+#250624
+Disallow: /nota_detalle.php?codigo=5579130&fecha=19/11/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5579130
+Disallow: /nota_detalle.php?codigo=5595534&fecha=25/06/2020#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5595534
+Disallow: /nota_detalle.php?codigo=5614430&fecha=25/03/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=561443
+Disallow: /nota_detalle.php?codigo=5634925&fecha=10/11/2021#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5634925
+
+#270624
+Disallow: /nota_detalle.php?codigo=5666059&fecha=30/09/2022#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5666059
+
+#291024
+Disallow: /nota_detalle.php?codigo=5523528&fecha=22/05/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5523528
+Disallow: /nota_detalle.php?codigo=codigo=5564538&fecha=01/07/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=codigo=5564538
+
+#131124
+Disallow: /nota_detalle.php?codigo=5523095&fecha=18/05/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5523095
+Disallow: /nota_detalle.php?codigo=5540256&fecha=08/10/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=codigo=5523095
+
+#040325
+Disallow: /nota_detalle.php?codigo=5548034&fecha=14/01/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5548034
+
+#220425
+Disallow: /nota_detalle.php?codigo=5691050&fecha=05/06/2023#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5691050
+Disallow: /nota_detalle.php?codigo=5715771&fecha=01/02/2024#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5715771
+
+#310725
+Disallow: /nota_detalle.php?codigo=5504646&fecha=15/11/2017#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5504646
+Disallow: /nota_detalle.php?codigo=5571333&fecha=05/09/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5571333
+Disallow: /nota_detalle.php?codigo=5508921&fecha=26/12/2017#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5508921
+Disallow: /nota_detalle.php?codigo=5543645&fecha=13/11/2018#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5543645
+
+
+#050226
+Disallow: /nota_detalle.php?codigo=5557303&fecha=30/03/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5557303
+Disallow: /nota_detalle.php?codigo=5581169&fecha=06/12/2019#gsc.tab=0
+Disallow: /nota_detalle_popup.php?codigo=5581169
+
+
+User-agent: AdsBot-Google
+Disallow: /
+

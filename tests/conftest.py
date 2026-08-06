@@ -53,7 +53,7 @@ def nota_landing() -> str:
 
 @pytest.fixture
 def robots_dof() -> str:
-    return fixture_text("robots_www.dof.gob.mx.txt")
+    return fixture_text("robots_dof.gob.mx.txt")
 
 
 @pytest.fixture

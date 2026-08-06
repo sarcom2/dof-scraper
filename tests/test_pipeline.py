@@ -20,7 +20,7 @@ from dof_ingest.pipeline import discover, enrich, index_url
 from dof_ingest.store import Store
 from tests.conftest import fixture_text
 
-INDEX_BASE = "https://www.dof.gob.mx/index_111.php"
+INDEX_BASE = "https://dof.gob.mx/index_111.php"
 BODY_BASE = "https://sidof.segob.gob.mx/notas/docFuente"
 
 PAGES = {
@@ -35,7 +35,11 @@ def make_handler(calls: list[str]) -> object:
         url = str(request.url)
         calls.append(url)
         if request.url.path == "/robots.txt":
-            name = f"robots_{request.url.host}.txt"
+            # Map www.dof.gob.mx to the renamed fixture
+            host = request.url.host
+            if host == "www.dof.gob.mx":
+                host = "dof.gob.mx"
+            name = f"robots_{host}.txt"
             return httpx.Response(200, text=fixture_text(name))
         if request.url.path.startswith("/notas/docFuente/"):
             return httpx.Response(200, text=fixture_text("docFuente_5788395.html"))

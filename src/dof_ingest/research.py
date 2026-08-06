@@ -21,8 +21,8 @@ from .http import FetchFailed, PoliteClient, RobotsDenied
 
 CKAN_SEARCH = "https://www.datos.gob.mx/api/3/action/package_search"
 SIDOF_API = "https://sidof.segob.gob.mx/dof/sidof"
-SITEMAP = "https://www.dof.gob.mx/sitemap.xml"
-RSS = "https://www.dof.gob.mx/rss.xml"
+SITEMAP = "https://dof.gob.mx/sitemap.xml"
+RSS = "https://dof.gob.mx/rss.xml"
 
 OPEN, PARTIAL, CLOSED = "OPEN", "PARTIAL", "CLOSED"
 
@@ -195,7 +195,7 @@ def probe_robots(client: PoliteClient) -> list[Probe]:
     """robots.txt is the constraint that shaped the architecture."""
     out = []
     for host, sample, label in (
-        ("https://www.dof.gob.mx", "https://www.dof.gob.mx/nota_detalle.php?codigo=5795217",
+        ("https://dof.gob.mx", "https://dof.gob.mx/nota_detalle.php?codigo=5795217",
          "detail pages on www"),
         ("https://sidof.segob.gob.mx", "https://sidof.segob.gob.mx/notas/docFuente/5795217",
          "note bodies on sidof"),

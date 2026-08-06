@@ -59,7 +59,7 @@ Full evidence, with raw responses: **[docs/RESEARCH.md](docs/RESEARCH.md)**.
 
 ## 2. robots.txt shaped the pipeline
 
-`www.dof.gob.mx/robots.txt` disallows `/nota_detalle.php?` and
+`dof.gob.mx/robots.txt` disallows `/nota_detalle.php?` and
 `/nota_to_doc.php?` — **the entire detail layer of the site**. The obvious
 design (crawl the index, follow each link) is off limits.
 
@@ -68,8 +68,8 @@ The same notice is also served by `sidof.segob.gob.mx`, whose robots.txt
 hosts because that is the only legal path the publisher left:
 
 ```
-  www.dof.gob.mx                             sidof.segob.gob.mx
-  ──────────────                             ──────────────────
+  dof.gob.mx                                 sidof.segob.gob.mx
+  ──────────                                 ──────────────────
   index_111.php?year&month&day&edicion       /notas/{codigo}           (landing, unused)
         │  ALLOWED                                  │
         │                                    /notas/docFuente/{codigo} (the text)
@@ -165,7 +165,7 @@ volatile chrome in every response:
 
 - the note page renders a live FX/UDIS ticker (`DÓLAR 17.3213  UDIS 8.844190`);
 - its citation box is stamped with **today's** date (`[citado el 01-08-2026]`);
-- `www.dof.gob.mx` issues a fresh `DOF_WEB` session cookie per request.
+- `dof.gob.mx` issues a fresh `DOF_WEB` session cookie per request.
 
 A change detector that fires on every record every day is worse than none — it
 looks like it's working when it isn't.
@@ -269,7 +269,7 @@ looks like data.
 
 This one is a safety bug, and it's in the standard library.
 
-`www.dof.gob.mx/robots.txt` starts:
+`dof.gob.mx/robots.txt` starts:
 
 ```
 User-agent: *
@@ -287,7 +287,7 @@ rule that follows**:
 >>> rp.parse(open("robots.txt").read().splitlines())
 >>> len(rp.entries)
 1                    # only the AdsBot-Google group survived
->>> rp.can_fetch("*", "https://www.dof.gob.mx/nota_detalle.php?codigo=1")
+>>> rp.can_fetch("*", "https://dof.gob.mx/nota_detalle.php?codigo=1")
 True                 # a page the DOF explicitly disallows
 ```
 
@@ -311,7 +311,7 @@ UTF-8. Anything trusting the document's first declaration produces `FederaciÃ³
 in every record. Order of trust: HTTP header → strict UTF-8 → cp1252 (not
 latin-1: these pages carry `0x91`–`0x94` smart quotes).
 
-**A broken TLS chain.** `www.dof.gob.mx` sends its leaf certificate **twice**
+**A broken TLS chain.** `dof.gob.mx` sends its leaf certificate **twice**
 and omits the GoDaddy G2 intermediate; `www.datos.gob.mx` omits Let's Encrypt
 E8. curl follows the AIA extension and finds the missing intermediate; OpenSSL
 doesn’t, so Python fails. The usual scraping workaround is `verify=False`, which
@@ -471,6 +471,81 @@ deterministic. They are regenerated with `make eval-local` and reported here.
 
 ---
 
+## 8. The lakehouse layer — `dof-lake` (Spark + Delta + Databricks)
+
+Yes, the corpus fits in SQLite. No, Spark is not here for the volume — and any
+version of this section that pretended otherwise would be the thing this
+project exists to avoid. The DOF **amends published notices** (fe de erratas),
+the scraper already tracks that with `revision` + content hashes, and that
+change feed maps directly onto the three things a lakehouse does natively:
+
+```
+  data/exports/notas-<date>.jsonl          (the hand-off: SQLite snapshot,
+          │                                 no Spark, no JVM)
+          ▼
+  bronze.notas_snapshot    every snapshot, deduplicated on (codigo, snapshot_date)
+          │                 — re-running the load writes nothing
+          ▼
+  silver.notas             SCD-2: one row per (codigo, revision),
+          │                 [valid_from, valid_to) brackets, is_current
+          ▼
+  gold.amendments_by_organismo   who corrects themselves, how often, how fast
+  gold.monthly_activity          volume by month × branch of government
+  gold.correction_feed           the 50 most recent corrections
+```
+
+The silver merge is the piece worth reading
+([`src/dof_lake/silver.py`](src/dof_lake/silver.py)). The version key is the
+scraper's own `revision` — which only moves when a content hash moves — so the
+merge needs **no watermark table**: re-observed revisions anti-join away, and
+a re-run reports `0 new revision(s) merged`. That is the section-3
+idempotency claim, ported to another engine and still measured rather than
+asserted. Two invariants (one live row per `codigo`; no closed row with a NULL
+`valid_to`) are re-derived from the data after every merge.
+
+Real output, real corpus:
+
+```
+$ make lake
+  27 notas -> data/exports/notas-2026-08-07.jsonl
+  bronze: staged 27 rows from data/exports
+  silver: 27 new revision(s) merged
+  gold.amendments_by_organismo: 12 rows
+
+$ uv run dof-lake silver        # same data, second time
+  silver: 0 new revision(s) merged
+```
+
+**Local, no account needed** (`brew install openjdk@17`, `uv sync --extra lake`):
+`make lake` runs the whole thing against Delta files under `data/lake/`, and
+`make lake-test` runs the SCD-2 suite — the publish → amend → re-observe
+lifecycle, asserted row by row, including a three-revision backfill in one
+pass.
+
+**Databricks Free Edition** (free, no card): the *same code* deploys as an
+Asset Bundle ([`databricks.yml`](databricks.yml)) — a scheduled serverless job
+with `bronze → silver → gold` tasks running the packaged wheel against Unity
+Catalog tables. Deploying it surfaced two cloud-only differences the local
+suite can't see, both fixed and commented in the source: Unity Catalog rejects
+`input_file_name()` (use `_metadata.file_path`), and `writeTo().createOrReplace()`
+creates the table but not the schema above it. Only snapshots travel; the
+crawler never runs on Databricks, because a politeness contract with a
+government web server should be honoured from a residential ASN, not a
+datacenter one.
+
+```
+$ databricks bundle run dof_lake_pipeline
+  Task bronze:  staged 27 rows from /Volumes/workspace/dof/exports
+  Task silver:  0 new revision(s) merged     # re-run over the same snapshot
+  Task gold:    amendments_by_organismo: 12 rows, monthly_activity: 5 rows
+```
+
+Why it exists and what I rejected: **ADR-16** in
+[docs/DECISIONS.md](docs/DECISIONS.md). At 1000× the volume this code runs
+unchanged; that, not the gigabytes, is the claim.
+
+---
+
 ## Data model
 
 ```
@@ -505,6 +580,10 @@ dof-qa index                             build the chunk + FTS5 index (idempoten
 dof-qa ask "<pregunta>"                  answer with citations, or refuse (exit 1)
 dof-qa eval --check                      run the golden set as a build gate
 dof-qa ablate                            what moved recall, and what didn't
+
+dof-lake export                          SQLite -> JSONL snapshot (no Spark needed)
+dof-lake bronze|silver|gold              one layer, or `all` for the whole run
+dof-lake stats                           row counts per layer
 ```
 
 Global: `--db PATH`, `-v`, `--log-json` (structured logs for CI/schedulers).
@@ -517,7 +596,7 @@ Environment: `DOF_DB`, `DOF_RPS`, `DOF_TIMEOUT`, `DOF_MAX_ATTEMPTS`,
 
 ```bash
 make install     # uv sync
-make test        # 51 tests, fully offline
+make test        # 83 tests, fully offline
 make lint        # ruff + mypy --strict
 make check       # all of the above
 ```
